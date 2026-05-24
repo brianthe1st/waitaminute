@@ -2,96 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Your Gift</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="video-page">
 
-  <!-- Countdown overlay -->
-  <div id="countdown-overlay">
+  <!-- Tap to start (shown on iOS before anything) -->
+  <div id="tap-start">
+    <div id="tap-text">🎁 Tap to open your gift</div>
+  </div>
+
+  <!-- Countdown overlay (hidden until tap) -->
+  <div id="countdown-overlay" style="display:none;">
     <div id="countdown-label">are u ready eleah? 🎁</div>
     <div id="countdown-number">5</div>
   </div>
 
-  <!-- VIDEO — muted so browser allows autoplay, visibility:hidden instead of display:none so it buffers early -->
+  <!-- VIDEO -->
   <video 
     id="gift-video"
     src="assets/video.mp4"
     playsinline
-    muted
+    webkit-playsinline
     preload="auto"
-    style="visibility:hidden; position:fixed; top:0; left:0; width:100%; height:100%;"
+    muted
   ></video>
 
   <script>
-    const overlay = document.getElementById('countdown-overlay');
-    const numEl   = document.getElementById('countdown-number');
-    const video   = document.getElementById('gift-video');
+    const tapStart  = document.getElementById('tap-start');
+    const overlay   = document.getElementById('countdown-overlay');
+    const numEl     = document.getElementById('countdown-number');
+    const video     = document.getElementById('gift-video');
 
-    // ✅ Start buffering immediately when page loads — don't wait for countdown
+    // Load video immediately so it buffers in background
     video.load();
 
+    // Step 1: Wait for tap (needed for iOS to allow sound)
+    tapStart.addEventListener('click', function() {
+      tapStart.style.display = 'none';
+      overlay.style.display  = 'flex';
+
+      // Trigger play+pause inside the gesture so iOS grants audio permission
+      video.muted = false;
+      video.play().then(() => {
+        video.pause();
+        video.currentTime = 0;
+      }).catch(() => {});
+
+      startCountdown();
+    });
+
+    // Step 2: Countdown
     let count = 5;
+    function startCountdown() {
+      tick();
+    }
 
     function tick() {
       numEl.style.animation = 'none';
       numEl.offsetHeight;
       numEl.style.animation = '';
-
       numEl.textContent = count;
 
       if (count === 0) {
         setTimeout(startVideo, 900);
         return;
       }
-
       count--;
       setTimeout(tick, 1000);
     }
 
+    // Step 3: Play video
     function startVideo() {
       overlay.style.display = 'none';
-
-      // ✅ Show video using visibility instead of display so layout isn't disrupted
-      video.style.visibility = 'visible';
+      video.classList.add('visible');
 
       const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
       if (isMobile && screen.orientation && screen.orientation.lock) {
         screen.orientation.lock('landscape').catch(() => {});
       }
 
-      // ✅ Play muted first (always works), then try to unmute
-      video.muted = true;
-      video.play().then(() => {
-        // Unmute after playback starts — this works because play already began
-        video.muted = false;
-      }).catch(err => {
-        console.log("Playback blocked:", err);
-        // ✅ Fallback: show a tap-to-play prompt instead of a black screen
-        showTapPrompt();
+      video.muted = false;
+      video.currentTime = 0;
+      video.play().catch(err => {
+        console.log("Play failed:", err);
+        // Last resort: play muted
+        video.muted = true;
+        video.play();
       });
     }
-
-    function showTapPrompt() {
-      video.style.visibility = 'visible';
-      const prompt = document.createElement('div');
-      prompt.id = 'tap-prompt';
-      prompt.textContent = '▶ click me';
-      prompt.style.cssText = `
-        position:fixed; inset:0; display:flex; align-items:center;
-        justify-content:center; background:#000; color:#fff;
-        font-size:1.5rem; cursor:pointer; z-index:999;
-      `;
-      document.body.appendChild(prompt);
-      prompt.addEventListener('click', () => {
-        video.muted = false;
-        video.play().catch(() => { video.muted = true; video.play(); });
-        prompt.remove();
-      }, { once: true });
-    }
-
-    setTimeout(tick, 600);
   </script>
 
 </body>

@@ -72,12 +72,40 @@ body {
   opacity: 0.8;
 }
 
-/* Video page */
+/* ── Video page ── */
 body.video-page {
   background: #000;
   margin: 0;
   padding: 0;
   display: block;
+  overflow: hidden;
+}
+
+/* Tap-to-start screen */
+#tap-start {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+#tap-text {
+  color: #fff;
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 0 32px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.97); }
 }
 
 /* Countdown overlay */
@@ -116,10 +144,20 @@ body.video-page {
   100% { transform: scale(1);   opacity: 1; }
 }
 
+/* Video: hidden until .visible is added */
 #gift-video {
-  width: 100vw;
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  /* iOS Safari fix: use -webkit-fill-available instead of 100vh */
+  width: 100%;
   height: 100vh;
+  height: -webkit-fill-available;
   object-fit: contain;
+  background: #000;
+}
+
+#gift-video.visible {
   display: block;
 }
 
@@ -128,26 +166,24 @@ body.video-page {
   .card {
     padding: 36px 22px 32px;
   }
-
   .title {
     font-size: 1.55rem;
   }
-
   .dog-img {
     width: 220px;
     height: 220px;
   }
-
   .btn {
     padding: 12px 32px;
     font-size: 1rem;
   }
-
   #countdown-label {
     font-size: 1.5rem;
   }
-
   #countdown-number {
     font-size: 7rem;
+  }
+  #tap-text {
+    font-size: 1.4rem;
   }
 }
