@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Gift</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="video-page">
+
+  <!-- Countdown overlay -->
+  <div id="countdown-overlay">
+    <div id="countdown-label">are u ready eleah? 🎁</div>
+    <div id="countdown-number">5</div>
+  </div>
+
+  <video id="gift-video" src="assets/video.mp4" playsinline style="display:none;"></video>
+
+  <script>
+    const overlay = document.getElementById('countdown-overlay');
+    const numEl   = document.getElementById('countdown-number');
+    const video   = document.getElementById('gift-video');
+
+    let count = 5;
+
+    function tick() {
+      // re-trigger animation
+      numEl.style.animation = 'none';
+      numEl.offsetHeight; // reflow
+      numEl.style.animation = '';
+
+      numEl.textContent = count;
+
+      if (count === 0) {
+        setTimeout(startVideo, 900);
+        return;
+      }
+      count--;
+      setTimeout(tick, 1000);
+    }
+
+    function startVideo() {
+      overlay.style.display = 'none';
+      video.style.display   = 'block';
+
+      // Try landscape on mobile
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (isMobile && screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+
+      video.play();
+    }
+
+    // Start countdown after a brief pause
+    setTimeout(tick, 600);
+  </script>
+</body>
+</html>
