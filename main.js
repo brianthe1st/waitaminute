@@ -7,7 +7,7 @@ function goNo() {
 }
 
 function tryAgain() {
-  window.location.href = 'page1.html';
+  window.location.href = 'index.html';
 }
 
 function goNext() {
