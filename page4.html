@@ -14,7 +14,14 @@
     <div id="countdown-number">5</div>
   </div>
 
-  <video id="gift-video" src="assets/video.mp4" playsinline style="display:none;"></video>
+  <!-- VIDEO -->
+  <video 
+    id="gift-video"
+    src="assets/video.mp4"
+    playsinline
+    preload="auto"
+    style="display:none;"
+  ></video>
 
   <script>
     const overlay = document.getElementById('countdown-overlay');
@@ -24,9 +31,8 @@
     let count = 5;
 
     function tick() {
-      // re-trigger animation
       numEl.style.animation = 'none';
-      numEl.offsetHeight; // reflow
+      numEl.offsetHeight;
       numEl.style.animation = '';
 
       numEl.textContent = count;
@@ -35,25 +41,27 @@
         setTimeout(startVideo, 900);
         return;
       }
+
       count--;
       setTimeout(tick, 1000);
     }
 
     function startVideo() {
       overlay.style.display = 'none';
-      video.style.display   = 'block';
+      video.style.display = 'block';
 
-      // Try landscape on mobile
       const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
       if (isMobile && screen.orientation && screen.orientation.lock) {
         screen.orientation.lock('landscape').catch(() => {});
       }
 
-      video.play();
+      video.play().catch(err => {
+        console.log("Playback blocked:", err);
+      });
     }
 
-    // Start countdown after a brief pause
     setTimeout(tick, 600);
   </script>
+
 </body>
 </html>
